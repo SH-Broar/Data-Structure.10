@@ -76,6 +76,7 @@ void SortByName_SL(SL_NODE** head)
 void prDataSL(SL_NODE* head)
 {
 	SL_NODE* tmp;
+	
 	tmp = head;
 	int a = 0;
 	while (tmp != NULL)
@@ -199,33 +200,170 @@ void SearchInTree(TR_NODE* root, char* name)
 		return;
 	}
 }
-
 void PrintAll(TR_NODE* root)
 {
 	if (root->pLeft != NULL)
 	{
 		PrintAll(root->pLeft);
 	}
-	else
-	{
-		printf("%s %s %d %d %d\n", root->pos, root->name, root->hp, root->mp, root->speed);
-		return;
-	}
-	printf("%s %s %d %d %d\n", root->pos, root->name, root->hp, root->mp, root->speed);
+	printf("%s %s %d %d %d\n",root->pos, root->name, root->hp, root->mp, root->speed);
 	if (root->pRight != NULL)
 	{
 		PrintAll(root->pRight);
 	}
-	else
-	{
-		printf("%s %s %d %d %d\n", root->pos, root->name, root->hp, root->mp, root->speed);
-		return;
-	}
+	return;
 }
 
-void DeleteInTree(TR_NODE* root, char* name)
+int DeleteInTree(TR_NODE* root, char* name)
 {
+	int a = 0;
+	int check = 0;
+	a = strcmp(root->name, name);
 	
+	if (a == 0)
+	{
+		if (root->pLeft == NULL && root->pLeft == NULL)
+		{
+			return 1;
+		}
+		else if (root->pLeft != NULL && root->pRight != NULL)
+		{
+			return 4;
+		}
+		else
+		{
+			if (root->pLeft == NULL)
+			{
+				return 3;
+			}
+			else
+			{
+				return 2;
+			}
+		}
+	}
+	else if (a < 0)
+	{
+		if (root->pRight == NULL)
+		{
+			return 0;
+		}
+		else
+		{
+			check = DeleteInTree(root->pRight, name);
+			if (check == 1)
+			{
+				free(root->pRight);
+				root->pRight = NULL;
+			}
+			else if (check == 2)
+			{
+				TR_NODE* tmp;
+				tmp = root->pRight;
+				root->pRight = tmp->pLeft;
+				free(tmp);
+			}
+			else if (check == 3)
+			{
+				TR_NODE* tmp;
+				tmp = root->pRight;
+				root->pRight = tmp->pRight;
+				free(tmp);
+			}
+			else if (check == 4)
+			{
+				TR_NODE* tmp,*tmp2;
+				TR_NODE* delTmp;
+				delTmp = root->pRight;
+				tmp = root->pRight;
+				tmp = tmp->pRight;
+				tmp2 = tmp;
+				if (tmp->pLeft != NULL)
+				{
+					while (tmp->pLeft->pLeft != NULL)
+					{
+						tmp2 = tmp;
+						tmp = tmp->pLeft;
+					}
+				}
+				else
+				{
+					root->pRight = tmp;
+					tmp->pLeft = delTmp->pLeft;
+					free(delTmp);
+					return 0;
+				}
+				
+				tmp->pLeft = delTmp->pLeft;
+				tmp->pRight = delTmp->pRight;
+				root->pRight = tmp;
+				tmp2->pLeft = NULL;
+				free(delTmp);
+			}
+			return 0;
+		}
+	}
+	else
+	{
+		if (root->pLeft == NULL)
+		{
+			return 0;
+		}
+		else
+		{
+			check = DeleteInTree(root->pLeft, name);
+			if (check == 1)
+			{
+				free(root->pLeft);
+				root->pLeft = NULL;
+			}
+			else if (check == 2)
+			{
+				TR_NODE* tmp;
+				tmp = root->pLeft;
+				root->pLeft = tmp->pLeft;
+				free(tmp);
+			}
+			else if (check == 3)
+			{
+				TR_NODE* tmp;
+				tmp = root->pLeft;
+				root->pLeft = tmp->pRight;
+				free(tmp);
+			}
+			else if (check == 4)
+			{
+				TR_NODE* tmp, *tmp2;
+				TR_NODE* delTmp;
+				delTmp = root->pLeft;
+				tmp = root->pLeft;
+				tmp = tmp->pLeft;
+				tmp2 = tmp;
+				if (tmp->pRight != NULL)
+				{
+					while (tmp->pRight->pRight != NULL)
+					{
+						tmp2 = tmp;
+						tmp = tmp->pRight;
+					}
+				}
+				else
+				{
+					root->pLeft = tmp;
+					tmp->pRight = delTmp->pRight;
+					free(delTmp);
+					return 0;
+				}
+
+				tmp->pLeft = delTmp->pLeft;
+				tmp->pRight = delTmp->pRight;
+				root->pLeft = tmp;
+				tmp2->pRight = NULL;
+				free(delTmp);
+			}
+			return 0;
+		}
+	}
 }
 
 int main()
@@ -251,4 +389,7 @@ int main()
 
 	scanf("%s", name);
 	DeleteInTree(Troot, name);
+
+	PrintAll(Troot);
+	printf("!");
 }
